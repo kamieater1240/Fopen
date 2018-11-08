@@ -1,27 +1,63 @@
-ï»¿#define _CRT_SECURE_NO_WARNINGS
+/*=====================================================
+ *‰Û‘èFƒNƒCƒYƒAƒJƒfƒ~[
+ *dateF2018.11.10
+ *coderFJosh
+ *===================================================== */
+#define _CRT_SECURE_NO_WARNINGS
+#define question_num 10
 #include <stdio.h>
 #include <stdlib.h>
+#include <conio.h>
+#include <time.h>
 #include <windows.h>
+#include <string>
+#include <iostream>
+#include <fstream>
+using namespace std;
+
+typedef struct {
+	string question;
+	string choices[3];
+	int correct;
+} Quiz;
+
+//ƒL[ƒ{[ƒh‚Ì“ü—ÍƒR[ƒh‚ÌENUM
+enum INPUTCOMMAND
+{
+	UP = 72,
+	DOWN = 80,
+	LEFT = 75,
+	RIGHT = 77,
+	ENTER = 13,
+	ESC = 27,
+};
 
 int main() {
 
-	FILE *fp;				//ãƒ•ã‚¡ã‚¤ãƒ«ãƒã‚¤ãƒ³ã‚¿ã®å®£è¨€
-	char A[30] = {"hanayama"};
-	int num, fN;
+	Quiz mondai[question_num];
+	char check;
 
-	//ãƒ•ã‚¡ã‚¤ãƒ«ã‚ªãƒ¼ãƒ—ãƒ³
-	fp = fopen("name.txt", "r");
-	if (fp == NULL)
-		printf("File open error.");
-	else {
-		while ((num = fscanf(fp, "%s%d", A, &fN)) != EOF) {
-			printf("Get!! %s is %d ä½\n", A, fN);
-			printf("num = %d\n", num);
-		}
-		printf("Last num = %d\n", num);
+	//window handle‚ğ’Í‚Ş
+	HANDLE hWindow;
+	hWindow = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	//window title‚ğİ’è‚·‚é
+	SetConsoleTitleA("ƒNƒCƒYƒAƒJƒfƒ~[");
+
+	//ƒNƒCƒY‚â‘I‘ğˆ‚â³‰ğ‚È‚Ç‚ğ“Ç‚İ‚Ş
+	//FILE *fp;
+	fstream fin;
+	//fp = fopen("question.txt", "r");
+	fin.open("question.txt", ios::in);
+	for (int i = 0; i < question_num; i++) {
+		//fscanf(fp, "%s%s%s%s%d%c", &mondai[i].question, &mondai[i].choices[0], &mondai[i].choices[1], &mondai[i].choices[2], &mondai[i].correct, &check);
+		//printf("%s\n%s\n%s\n%s\n%d\n", mondai[i].question, mondai[i].choices[0], mondai[i].choices[1], mondai[i].choices[2], mondai[i].correct);
+		//fscanf(fp, "%s%s%s%s%d%c", &mondai[i].question, mondai[i].choices[0], mondai[i].choices[1], mondai[i].choices[2], &mondai[i].correct, &check);
+		//printf("%s\n%s\n%s\n%s\n%d\n", mondai[i].question, mondai[i].choices[0], mondai[i].choices[1], mondai[i].choices[2], mondai[i].correct);
 	}
 
-	//ãƒ•ã‚¡ã‚¤ãƒ«ã‚¯ãƒ­ãƒ¼ã‚¹
+
+	//ƒtƒ@ƒCƒ‹ƒNƒ[ƒX
 	fclose(fp);
 
 	system("pause");
