@@ -40,26 +40,28 @@ const char * startText[] =
 {
 	"ゲームクイズへようこそ！！\n",
 	"各難易度に問題10個あります\n",
-	"問題一個を正しく答えたら10点が取られます。\n",
-	"さあ！満点100点が取られますか？\n",
-	"難易度を選んで始めましょう！！\n"
+	"問題一個を正しく答えたら10点が取れます。\n",
+	"さあ！満点100点が取れますか？？？\n",
+	"では、始めましょう！！\n"
 };
 
 void drawchoices();
 
 int getinput();
 
+void outputResult(int*);
+
 void DrawRectangle(int, int, int, int, char, char);
 
 //Cursorの座標
 COORD pos = { 0, 0 };
 
+//問題を保存する変数配列を宣告する
+Quiz mondai[question_num];
+
 int main() {
 
 	DrawRectangle(10, 5, 30, 15, '*', ' ');
-
-	Quiz mondai[question_num];
-	char check;
 
 	//window handleを掴む
 	HANDLE hWindow;
@@ -97,24 +99,31 @@ int main() {
 
 	//クイズや選択肢や正解などを読み込む
 	FILE *fp;
-	fp = fopen("question.txt", "r");
+	fp = fopen("myquestion.txt", "r");
 	for (int i = 0; i < question_num; i++) {
-		fscanf(fp, "%s%s%s%s%d%c", mondai[i].question, mondai[i].choices[0], mondai[i].choices[1], mondai[i].choices[2], &mondai[i].correct, &check);
+		fscanf(fp, "%s%s%s%s%d", mondai[i].question, mondai[i].choices[0], mondai[i].choices[1], mondai[i].choices[2], &mondai[i].correct);
 	}
 
-	/*int answered[10];
+	int answered[10];
 
 	for (int i = 0; i < question_num; i++) {
 		printf("さ~さ~第%d問、準備しましたか？\n", i + 1);
 		Sleep(500);
-		printf("よし！始めよう！！\n");
+		printf("よし！始めよう！！\n\n");
 		Sleep(500);
+		SetConsoleTextAttribute(hWindow, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 		printf("%s\n", mondai[i].question);
-		printf("%s\n%s\n%s\n", mondai[i].choices[0], mondai[i].choices[1], mondai[i].choices[2]);
+		printf("%s\n%s\n%s\n\n", mondai[i].choices[0], mondai[i].choices[1], mondai[i].choices[2]);
+		SetConsoleTextAttribute(hWindow, 0x3);
 		printf("では！君の答えはどちらでしょうか？ 答：");
 		scanf("%d", &answered[i]);
 		system("cls");
-	}*/
+	}
+
+	outputResult(answered);
+
+	printf("結果がでました！result.txtを確認してください！\n");
+	printf("遊んでくれてありがとう！   Coder : Josh\n");
 
 	//ファイルクロース
 	fclose(fp);
@@ -123,12 +132,53 @@ int main() {
 	return 0;
 }
 
-void drawchoices() {
+void outputResult(int *answers) {
 
-}
+	int correctNum = 0;
+	bool RorW[question_num];
 
-int getinput() {
+	//答えが正しいかどうか判断する
+	for (int i = 0; i < question_num; i++) {
+		if (answers[i] == mondai[i].correct) {
+			RorW[i] = true;
+			correctNum++;
+		}
+		else
+			RorW[i] = false;
+	}
 
+	//結果をresult.txtに出力する
+	FILE *fp;
+	fp = fopen("result.txt", "w+");
+
+	fprintf(fp, "%s\n", "********************************************************");
+	fprintf(fp, "%s\n", "**                                                    **");
+	fprintf(fp, "%s\n", "**          『クイズ☆アカデミー』結果発表            **");
+	fprintf(fp, "%s\n", "**                                                    **");
+	fprintf(fp, "%s\n", "********************************************************");
+	fprintf(fp, "\n");
+
+	for (int i = 0; i < question_num; i++) {
+		if (RorW[i] == true)
+			fprintf(fp, "第  %2d 問：☆  正解  ☆\n", i + 1);
+		else
+			fprintf(fp, "第  %2d 問：◆ 不正解 ◆\n", i + 1);
+	}
+	fprintf(fp, "\n");
+
+	fprintf(fp, "%s\n", "+------------------------------------+");
+	fprintf(fp, "%s\n", "|                                    |");
+	fprintf(fp, "| %2d 問中  %2d 問正解 (正答率：%3d.0%%)|\n", question_num, correctNum, correctNum*10);
+	fprintf(fp, "%s\n", "|                                    |");
+	fprintf(fp, "%s\n", "+------------------------------------+");
+	fprintf(fp, "\n");
+
+	if(correctNum < 6)
+		fprintf(fp, "%s\n", "『さようなら…(ﾉД`)ﾉ~~』■■■ 退学 ■■■");
+	else
+		fprintf(fp, "%s\n", "『凄いね！よく頑張ったじゃない？ヽ(*ﾟдﾟ)ノ』■■■ 進級 ■■■");
+
+	fclose(fp);
 }
 
 void DrawRectangle(int posX, int posY, int width, int height, char drawChar, char emptyChar) {
@@ -157,5 +207,4 @@ void DrawRectangle(int posX, int posY, int width, int height, char drawChar, cha
 	//last row
 	cout << posXstring;
 	cout << firstAndLastRow << endl;
-
 }
