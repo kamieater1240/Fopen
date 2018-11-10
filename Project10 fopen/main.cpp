@@ -39,15 +39,15 @@ enum INPUTCOMMAND
 const char * startText[] =
 {
 	"ゲームクイズへようこそ！！\n",
-	"各難易度に問題10個あります\n",
+	"問題10個あります。\n",
 	"問題一個を正しく答えたら10点が取れます。\n",
 	"さあ！満点100点が取れますか？？？\n",
 	"では、始めましょう！！\n"
 };
 
-void drawchoices();
+void drawchoices(HANDLE hWindow, char(*choice)[100], int listNum, int index);
 
-int getinput();
+int getinput(int *row, int rowNum);
 
 void outputResult(int*);
 
@@ -61,11 +61,12 @@ Quiz mondai[question_num];
 
 int main() {
 
-	DrawRectangle(10, 5, 30, 15, '*', ' ');
-
 	//window handleを掴む
 	HANDLE hWindow;
 	hWindow = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	SetConsoleTextAttribute(hWindow, FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_RED);
+	DrawRectangle(0, 0, 50, 7, '*', ' ');
 
 	//Cursor情報を取る
 	CONSOLE_CURSOR_INFO CCI;
@@ -78,7 +79,7 @@ int main() {
 	SetConsoleCursorInfo(hWindow, &CCI);
 
 	//開始画面を表示する
-	SetConsoleTextAttribute(hWindow, 0x3);
+	SetConsoleTextAttribute(hWindow, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
 	for (int i = 0; i < objectnum(startText); i++)
 	{
 		pos.X = 2; pos.Y = 1 + i;
@@ -112,11 +113,23 @@ int main() {
 		printf("よし！始めよう！！\n\n");
 		Sleep(500);
 		SetConsoleTextAttribute(hWindow, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-		printf("%s\n", mondai[i].question);
-		printf("%s\n%s\n%s\n\n", mondai[i].choices[0], mondai[i].choices[1], mondai[i].choices[2]);
+		printf("%s\n\n", mondai[i].question);
+
 		SetConsoleTextAttribute(hWindow, 0x3);
-		printf("では！君の答えはどちらでしょうか？ 答：");
-		scanf("%d", &answered[i]);
+		printf("では！君の答えはどちらでしょうか？\n\n");
+
+		bool finish = true;
+		int press, row = 1;
+		while (finish) {
+			drawchoices(hWindow, mondai[i].choices, 3, row);
+			printf("\n\n\n\n\n row = %d", row);
+			press = getinput(&row, 3);
+			if (press == ENTER) {
+				answered[i] = row;
+				system("cls");
+				break;
+			}
+		}
 		system("cls");
 	}
 
@@ -129,6 +142,57 @@ int main() {
 	fclose(fp);
 
 	system("pause");
+	return 0;
+}
+
+void drawchoices(HANDLE hWindow, char(*choice)[100], int listNum, int index) {
+
+	pos.X = 0;
+	pos.Y = 0;
+	SetConsoleCursorPosition(hWindow, pos);
+	for (int i = 1; i <= listNum; i++) {
+
+		if (i == index) {
+			SetConsoleTextAttribute(hWindow, FOREGROUND_RED | 0x8);
+			pos.X = 0;
+			pos.Y = 7 + i;
+			SetConsoleCursorPosition(hWindow, pos);
+			printf("%s", choice[i-1]);
+		}
+		else {
+			SetConsoleTextAttribute(hWindow, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+			pos.X = 0;
+			pos.Y = 7 + i;
+			SetConsoleCursorPosition(hWindow, pos);
+			printf("%s", choice[i-1]);
+		}
+	}
+	return;
+}
+
+int getinput(int *row, int rowNum) {
+
+	int get;
+	get = _getch();
+	if (get == UP) {
+		if (*row > 1) {
+			*row -= 1;
+		}
+		else {
+			*row = rowNum;
+		}
+	}
+	else if (get == DOWN) {
+		if (*row < rowNum) {
+			*row += 1;
+		}
+		else {
+			*row = 1;
+		}
+	}
+	else if (get == ENTER)
+		return ENTER;
+
 	return 0;
 }
 
@@ -168,12 +232,12 @@ void outputResult(int *answers) {
 
 	fprintf(fp, "%s\n", "+------------------------------------+");
 	fprintf(fp, "%s\n", "|                                    |");
-	fprintf(fp, "| %2d 問中  %2d 問正解 (正答率：%3d.0%%)|\n", question_num, correctNum, correctNum*10);
+	fprintf(fp, "| %2d 問中  %2d 問正解 (正答率：%3d.0%%)|\n", question_num, correctNum, correctNum * 10);
 	fprintf(fp, "%s\n", "|                                    |");
 	fprintf(fp, "%s\n", "+------------------------------------+");
 	fprintf(fp, "\n");
 
-	if(correctNum < 6)
+	if (correctNum < 6)
 		fprintf(fp, "%s\n", "『さようなら…(ﾉД`)ﾉ~~』■■■ 退学 ■■■");
 	else
 		fprintf(fp, "%s\n", "『凄いね！よく頑張ったじゃない？ヽ(*ﾟдﾟ)ノ』■■■ 進級 ■■■");
