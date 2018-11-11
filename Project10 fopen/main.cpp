@@ -122,7 +122,6 @@ int main() {
 		int press, row = 1;
 		while (finish) {
 			drawchoices(hWindow, mondai[i].choices, 3, row);
-			printf("\n\n\n\n\n row = %d", row);
 			press = getinput(&row, 3);
 			if (press == ENTER) {
 				answered[i] = row;
